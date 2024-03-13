@@ -46,7 +46,10 @@ public class Test {
                 }
             }
             
-            
+            if(todayInt[0] <= day[0]) 
+            	if(todayInt[1] <= day[1]) 
+            		if(todayInt[2] <= day[2]) 
+            			continue;
             
             list.add(i+1);
         }
