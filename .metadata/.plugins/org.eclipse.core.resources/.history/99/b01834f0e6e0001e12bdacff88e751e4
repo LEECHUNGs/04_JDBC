@@ -1,0 +1,5 @@
+package edu.kh.jdc1.model.vo;
+
+public class Emp {
+	
+}

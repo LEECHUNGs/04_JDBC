@@ -1,0 +1,30 @@
+package edu.kh.jdc1;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Scanner;
+
+public class JDBCExample3 {
+	
+	public static void main(String[] args) {
+		
+		// 부서명을 입력받아 같은 부서에 있는 사원의
+		// 사원명, 부서병, 급여 조회
+		
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		Scanner sc = new Scanner(System.in);
+		
+		try {
+			
+			
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+	}
+}

@@ -1,0 +1,11 @@
+package edu.kh.jdc1;
+
+public class JDBCExample5 {
+	
+	public static void main(String[] args) {
+		
+		// 입사일을 입력("2000-01-01")
+		// 
+	}
+	
+}
