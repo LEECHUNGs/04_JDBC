@@ -7,9 +7,9 @@ public class Test {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String today = "2022.05.19";
-		String[] terms = {"A 6", "B 12", "C 3"};
-		String[] privacies = {"2021.05.02 A", "2021.07.01 B", "2022.02.19 C", "2022.02.20 C"};
+		String today = "2020.01.01";
+		String[] terms = {"Z 3", "D 5"};
+		String[] privacies = {"2019.01.01 D", "2019.11.15 Z", "2019.08.02 D", "2019.07.01 D", "2018.12.28 Z"};
 		List<Integer> list = new ArrayList<Integer>();
 		
 		String[] todayArray = today.split("\\.");
@@ -37,18 +37,24 @@ public class Test {
                         day[0] += day[1] / 12;
                         day[1] %= 12;
                     }
-                    
+                    System.out.println("\n" + (i+1));
                     System.out.println(todayInt[0] + " " + todayInt[1] + " " + todayArray[2]);
-                    System.out.println(day[0] + " " + day[1] + " " + day[2]);
+                    System.out.println(day[0] + " " + day[1] + " " + day[2] + " (+ " + Integer.parseInt(terms[j].substring(2)));
                     System.out.println();
                     
                     break;
                 }
             }
             
+            if(todayInt[0] > day[0]) list.add(i+1);
+            if(todayInt[0] == day[0]) {
+            	if(todayInt[1] > day[1]) list.add(i+1);
+            	if(todayInt[1] == day[1]) {
+            		if(todayInt[2] >= day[2]) list.add(i+1);
+            	}
+            }
             
             
-            list.add(i+1);
         }
         
         int[] answer = new int[list.size()];
