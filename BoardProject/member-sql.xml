@@ -14,5 +14,19 @@
 		MEMBER_NM = ?, MEMBER_GENDER = ?
 		WHERE MEMBER_NO = ?
 	</entry>
+	
+	<entry key="updatePassword">
+		UPDATE "MEMBER" SET
+		MEMBER_PW = ?
+		WHERE MEMBER_PW = ? 
+		AND MEMBER_NO = ?
+	</entry>
+	
+	<entry key="unRegisterMenu">
+		UPDATE "MEMBER" SET
+		UNREGISTER_FL = 'Y'
+		WHERE MEMBER_PW = ? 
+		AND MEMBER_NO = ?
+	</entry>
 
 </properties>

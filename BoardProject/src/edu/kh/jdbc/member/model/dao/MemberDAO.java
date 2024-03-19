@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Properties;
 
 import static edu.kh.jdbc.common.JDBCTemplate.*;
+
+import edu.kh.jdbc.common.Session;
 import edu.kh.jdbc.member.model.dto.Member;
 
 public class MemberDAO {
@@ -84,6 +86,49 @@ public class MemberDAO {
 			
 		} finally {
 			// 3. JDBC 객체 자원 반환
+			close(pstmt);
+		}
+		
+		return result;
+	}
+
+	public int updatePassword(Connection conn, String memberPw, String newPw1, int memberNo) throws Exception{
+		int result = 0;
+		
+		try {
+			String sql = prop.getProperty("updatePassword");
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, newPw1);
+			pstmt.setString(2, memberPw);
+			pstmt.setInt(3, memberNo);
+			
+			result = pstmt.executeUpdate();
+			
+		} finally {
+			close(pstmt);
+			
+		}
+		
+		return result;
+	}
+
+
+	public int unRegisterMenu(Connection conn, String memberPw, int memberNo) throws Exception{
+		int result = 0;
+		
+		try {
+			String sql = prop.getProperty("unRegisterMenu");
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, memberPw);
+			pstmt.setInt(2, memberNo);
+			
+			result = pstmt.executeUpdate();
+			
+		} finally {
 			close(pstmt);
 		}
 		
