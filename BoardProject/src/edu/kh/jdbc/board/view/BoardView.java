@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import edu.kh.jdbc.board.model.dto.Board;
+import edu.kh.jdbc.board.model.dto.Comment;
 import edu.kh.jdbc.board.model.service.BoardService;
 import edu.kh.jdbc.common.Session;
 
@@ -11,6 +12,9 @@ public class BoardView {
 	private Scanner sc = new Scanner(System.in);
 	
 	private BoardService service = new BoardService();
+	
+	// 댓글 화면 출력 객체
+	private CommentView commentView = new CommentView();
 	
 	public void boardMenu() {
 		int input = -1;
@@ -36,7 +40,7 @@ public class BoardView {
 				switch(input) {
 				case 1: selectAllBoard();  break; // 게시글 목록 조회
 				case 2: selectBoard(); break; // 게시글 상세 조회
-				case 3: //insertBoard(); break; // 게시글 등록(삽입)
+				case 3: insertBoard(); break; // 게시글 등록(삽입)
 				
 				case 9:
 					System.out.println("\n===== 메인 메뉴로 돌아갑니다 =====\n");
@@ -59,6 +63,59 @@ public class BoardView {
 		}while(input != 9);
 	}
 	
+	/**
+	 * 게시글 등록 (INSERT)
+	 */
+	private void insertBoard() {
+		System.out.println("\n===== 게시글 등록 =====\n");
+		
+		// 제목 입력
+		System.out.print("제목 입력 : ");
+		String boardTitle = sc.nextLine();
+		
+		// 내용 입력(StringBuffer)
+		StringBuffer sb = new StringBuffer();
+		
+		System.out.println("<!wq 입력 시 종료>");
+		while(true) {
+			String str = sc.nextLine();
+			
+			if(str.equals("!wq")) break;
+			
+			sb.append(str);
+			sb.append("\n");
+		}
+		
+		try {
+			int result = service.insertBoard(boardTitle, sb.toString(), 
+												Session.loginMember.getMemberNo());
+			
+			if(result > 0) { // 성공
+				System.out.println("\n===== 등록 되었습니다. =====\n");
+				
+				// 등록된 게시글 상세 조회 서비스 호출
+				// -> 게시글 번호 , 로그인 회원 번호
+				Board board = service.selectBoard(result, Session.loginMember.getMemberNo());
+												// 등록된 게시글번호, 회원 번호
+				
+				System.out.println("--------------------------------------------------------");
+				System.out.printf("글번호 : %d \n제목 : %s\n", board.getBoardNo(), board.getBoardTilte());
+				System.out.printf("작성자 : %s | 작성일 : %s  \n조회수 : %d\n",
+						board.getMemberName(), board.getCreateDate(), board.getReadCount());
+				System.out.println("--------------------------------------------------------\n");
+				System.out.println(board.getBoardContent());
+				System.out.println("\n--------------------------------------------------------");
+			}
+			else { // 실패
+				System.out.println("\n*** 게시글 등록 실패! ***\n");
+			}
+			
+		} catch (Exception e) {
+			System.out.println("\n*** 게시글 등록 중 예외 발생 ***\n");
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * 게시글 목록 조회
 	 */
@@ -132,13 +189,121 @@ public class BoardView {
 				System.out.println("--------------------------------------------------------\n");
 				System.out.println(board.getBoardContent());
 				System.out.println("\n--------------------------------------------------------");
+				
+				// ******************************************
+				
+				/* 해당 게시글 댓글 목록 조회 */
+				if(!board.getCommentList().isEmpty()) {
+					
+					for(Comment c : board.getCommentList()) {
+						System.out.printf("[댓글 번호 : %d]  작성자 : %s   작성일 : %s\n%s\n",
+										c.getCommentNo(), c.getMemberName(), c.getCreateDate(),
+										c.getCommentContent());
+						System.out.println("--------------------------------------------------------");
+					}
+				}
+				
+			}
+			
+			/* 댓글 메뉴 출력 */
+			// 1) 댓글 등록 - 누가 몇번 게시글에 작성하는가?
+			// 2) 댓글 수정 - 누가 몇번 게시글에 있는 몇번 댓글을 수정할 것인가?
+			// 3) 댓글 삭제 - 누가 몇번 게시글에 있는 몇번 댓글을 삭제할 것인가?
+			commentView.commentMenu(input); 
+								// 게시글 번호 
+			
+			// **********************************************************************
+			
+			// 로그인한 회원이 작성한 게시글일 경우
+			// 게시글 수정/삭제 기능 노출
+			if(Session.loginMember.getMemberNo() == board.getMemberNo()) {
+				while (true) {
+					System.out.println("1) 수정");
+					System.out.println("2) 삭제");
+					System.out.println("0) 게시판 메뉴로 돌아가기");
+					
+					System.out.print("선택 >> ");
+					input = sc.nextInt();
+					sc.nextLine();
+					
+					// 수정/삭제 기능 수행 후 게시판 메뉴로 돌아가기
+					switch(input) {
+					case 1 : updateBoard(board.getBoardNo()); return;
+							 // 게시글 번호를 매개변수로 전달 - 해당 번호의 게시글을 수정
+					case 2 : deleteBoard(board.getBoardNo()); return;
+							 // 게시글 번호를 매개변수로 전달 - 해당 번호의 게시물을 삭제
+					case 0 : return;
+					default : System.out.println("\n*** 잘못 입력 하셨습니다 ***\n"); break;					
+					}
+				}
+				
 			}
 			
 		} catch (Exception e) {
 			System.out.println("\n*** 게시글 상세 조회 중 예외 발생 ***\n");
 			e.printStackTrace();
 		}
+	}
+
+	/** 게시글 수정
+	 * @param boardNo
+	 */
+	public void updateBoard(int boardNo) {
+		System.out.println("\n===== 게시글 수정 =====\n");
 		
+		System.out.print("수정할 제목 : ");
+		String boardTitle = sc.nextLine();
+		
+		StringBuffer sb = new StringBuffer();
+		
+		System.out.println("<!wq 입력 시 종료>");
+		while(true) {
+			String str = sc.nextLine();
+			
+			if(str.equals("!wq")) break;
+			
+			sb.append(str);
+			sb.append("\n");
+		}
+		
+		try {
+			int result = service.updateBoard(boardTitle, sb.toString(), boardNo);
+			
+			if(result > 0) System.out.println("\n===== 게시글이 수정 되었습니다 =====\n");
+			else System.out.println("\n*** 수정 실패!! ***\n");
+			
+		} catch (Exception e) {
+			System.out.println("\n*** 게시글 수정 중 예외 발생 ***\n");
+			e.printStackTrace();
+		}
+	}
+	
+	private void deleteBoard(int boardNo) {
+		System.out.println("\n===== 게시글 삭제 =====\n");
+		
+		while(true) {
+			System.out.print("해당 게시물을 정말 삭제 하시겠습니까? (Y/N) : ");
+			char check = sc.next().toUpperCase().charAt(0); 
+			
+			if(check == 'Y') break;
+			if(check == 'N') {
+				System.out.println("\n===== 게시판 메뉴로 돌아갑니다 =====\n");
+				return;
+			}	
+			
+			System.out.println("\n*** Y 또는 N만 입력해 주세요!! ***\n");
+		}
+		
+		try {
+			int result = service.deleteBoard(boardNo);
+			
+			if(result > 0) System.out.println("\n===== 게시글이 삭제 되었습니다 =====\n");
+			else System.out.println("\n*** 삭제 실패!! ***\n");
+			
+		} catch (Exception e) {
+			System.out.println("\n*** 게시글 삭제 중 예외 발생 ***\n");
+			e.printStackTrace();
+		}
 		
 	}
 }
